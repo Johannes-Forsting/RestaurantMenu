@@ -9,7 +9,8 @@ import { FlatList,
 
 
 import React, {
-    useState
+    useState,
+    useEffect
 } from 'react';
 
 import {
@@ -23,8 +24,11 @@ import {database, storage} from '../config/config'
 
 const ListView = ({navigation, route}) => {  // route.params.xxx
 
-    const chatColl = 'notes';
+    const chatColl = 'menu';
     const [notes, setNotes] = useState([]);
+    useEffect(() => {
+        readDB();
+    }, []);
     const readDB = async () => {
         const collectionRef = collection(database, chatColl);
         const q = query(collectionRef, ref => ref.orderBy('createdAt', 'desc'));
@@ -48,9 +52,8 @@ const ListView = ({navigation, route}) => {  // route.params.xxx
     const addNote = () => {
 
         addDoc(collection(database, chatColl), {
-            text: "New note",
-            latitude: "",
-            longitide: "",
+            header: "New Item",
+            description: "Put food describtion here",
             hasImage: false
         });
     }
@@ -62,6 +65,7 @@ const ListView = ({navigation, route}) => {  // route.params.xxx
 
 
 
+
     const mapView = "MapView"
     const getMap = (item) => {
         navigation.navigate(mapView, {notes:notes})
@@ -70,23 +74,35 @@ const ListView = ({navigation, route}) => {  // route.params.xxx
 
     return (
         <View style={styles.container}>
-            <View>
-                <Button title='New Note' onPress={addNote}/>
-                <Button title='Load Notes' onPress={readDB}/>
-                <Button title='Go to map' onPress={getMap}/>
+            <View style={styles.header}>
+                <Button
+                    color={"#252525"}
+                    title='INFO'
+                    onPress={getMap}/>
+                <Button
+                    color={"#ea964e"}
+                    title='ADD+'
+                    onPress={addNote}/>
             </View>
             <View style={styles.imagePreview}>
-                <Image  style={styles.image} source={{uri: 'https://reactjs.org/logo-og.png'}}/>
+                <Image
+                    source={{uri: 'https://i.imgur.com/RTksagv.png'}} style={styles.image}
+                />
             </View>
             <StatusBar style="auto" />
-            <FlatList
-                data={notes}
-                renderItem={({item}) =>
-                    <Button style={styles.item}
-                            title={item.text.substring(0,30)}
-                            onPress={() => clickRow(item)}/>
-                }
-            />
+                <FlatList
+                    style={styles.menu}
+                    data={notes}
+                    renderItem={({item}) =>
+                        <View style={styles.item}>
+                            <Button
+                                color="#f83821"
+                                title={item.header.substring(0,30)}
+                                onPress={() => clickRow(item)}/>
+                        </View>
+                    }
+                />
+
         </View>
     );
 };
@@ -94,29 +110,40 @@ const ListView = ({navigation, route}) => {  // route.params.xxx
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        marginTop:0,
+        paddingTop: 15,
+        paddingHorizontal: 30,
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },header: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%"
+
     },
     item: {
-        padding: 10,
+        padding: 0,
         fontSize: 11,
-        height: 44,
-        backgroundColor: "#68c",
-        borderColor: "#944"
-
+        margin: 5,
+        borderStyle: "solid",
+        borderColor: "#3d1d06",
+        borderWidth: 3,
+        borderRadius: 5
     },
     imagePreview:{
         width:'100%',
-        height:150,
+        height:250,
         alignItems:'center',
-        backgroundColor: "#933"
     },
     image:{
         width:'100%',
-        height:'100%'
+        height:'100%',
+    },
+    menu:{
+        width: 250,
+        alignSelf: "center"
     }
 });
 

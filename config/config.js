@@ -6,12 +6,12 @@ import {getStorage} from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDTUnNYyZIwQDK0FaAl4_7H57NkpnHa6SQ",
-    authDomain: "fir-demo-1b5b0.firebaseapp.com",
-    projectId: "fir-demo-1b5b0",
-    storageBucket: "fir-demo-1b5b0.appspot.com",
-    messagingSenderId: "244871663167",
-    appId: "1:244871663167:web:0d6b54b61edb8d5ac2f28a"
+    apiKey: "AIzaSyC6ourj7WSwBpF41P8nbu6fyl2EDVjtX7c",
+    authDomain: "restaurantmenu-94eff.firebaseapp.com",
+    projectId: "restaurantmenu-94eff",
+    storageBucket: "restaurantmenu-94eff.appspot.com",
+    messagingSenderId: "802464809223",
+    appId: "1:802464809223:web:21b1bbaed9b72e8014c5a2"
 };
 
 // Initialize Firebase
@@ -19,4 +19,3 @@ const app = initializeApp(firebaseConfig);
 
 export const database = getFirestore();
 export const storage = getStorage(app);
-

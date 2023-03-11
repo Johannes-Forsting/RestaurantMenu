@@ -1,5 +1,5 @@
 import {
-    TextInput, View, Image, StyleSheet, Button
+    TextInput, View, Image, StyleSheet, Button,
 } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -18,22 +18,25 @@ import {database, storage} from '../config/config';
 import {ref, uploadBytes, getDownloadURL, deleteObject} from "firebase/storage";
 
 const DetailView = ({navigation, route}) => {
-    console.log("in detailview")
-    console.log(route.params.longitude)
-    const [text, setText] = useState(route.params.object.text);
+
+    const [header, setHeader] = useState(route.params.object.header);
+    const [description, setDescription] = useState(route.params.object.description);
+    const [price, setPrice] = useState(route.params.object.price);
     const [hasImage, setHasImage] = useState(route.params.object.hasImage);
     const [imagePath, setImagePath] = useState(null);
 
-    const chatColl = 'notes';
+    const chatColl = 'menu';
 
     const takeImageHandler = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing:true
-        });
-        setImagePath(result.assets[0].uri); // was result.assets[0].uri
-        setHasImage(true);
-        route.params.object.hasImage = true;
-        console.log("in takeImageHandler. route..hasImage: " + route.params.object.hasImage);
+        if(!route.params.object.hasImage) {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true
+            });
+            setImagePath(result.assets[0].uri); // was result.assets[0].uri
+            setHasImage(true);
+            route.params.object.hasImage = true;
+            console.log("in takeImageHandler. route..hasImage: " + route.params.object.hasImage);
+        }
     }
 
     const uploadImage = async () => {
@@ -72,19 +75,18 @@ const DetailView = ({navigation, route}) => {
             });
     };
 
-    if(route.params.object.longitude !== ""){ // will only be read at first render. Hence no extra downloads.
-        console.log("longitude: " + route.params.object.longitude)
-        console.log("text: " + route.params.object.text)
-        //downloadImage()
+    if(route.params.object.hasImage || !route.params.object.hasImage ){ // will only be read at first render. Hence no extra downloads.
+
+        console.log("image" + downloadImage())
     }
 
 
 
     const saveNote = async () => {
         await setDoc(doc(database, chatColl, route.params.object.key), {
-            text: text,
-            latitude: route.params.latitude,
-            longitude: route.params.longitude,
+            header: header,
+            description: description,
+            price: price,
             hasImage: route.params.object.hasImage
         })
         if(route.params.object.hasImage){
@@ -105,26 +107,38 @@ const DetailView = ({navigation, route}) => {
         });
     };
 
-    const mapView = "MapView"
-    const goToMap = () => {
-        navigation.navigate(mapView, {note: route.params.note})
-    }
-
     return (
         <View>
             <View style={styles.buttons}>
-                <Button  title='Get Image' onPress={takeImageHandler}/>
-                <Button title='Delete Image' onPress={deleteImage}/>
-                <Button title='Location' onPress={goToMap}/>
-                <Button style={styles.saveButton} title='Save' onPress={saveNote}/>
+                <Button color="#f83821" title='ADD PIC' onPress={takeImageHandler}/>
+                <Button color="#f83821" title='DEL PIC' onPress={deleteImage}/>
+                <Button color="#f83821" title='SAVE' onPress={saveNote}/>
             </View>
-            <TextInput multiline={true}
-                       onChangeText={newText => setText(newText)}>
-                {route.params.object.text}
+            <TextInput
+                style={styles.header}
+                multiline={true}
+                onChangeText={newheader => setHeader(newheader)}>
+                {route.params.object.header}
             </TextInput>
-            { hasImage &&
-                <Image  style={styles.image} source={{uri: imagePath}}/>
-            }
+            <TextInput
+                style={styles.description}
+                multiline={true}
+                numberOfLines={1}
+                onChangeText={newDesc => setDescription(newDesc)}>
+                {route.params.object.description}
+            </TextInput>
+            <TextInput
+                style={styles.price}
+                multiline={true}
+                keyboardType='numeric'
+                onChangeText={newPrice => setPrice(newPrice)}>
+                Price: {route.params.object.price}
+            </TextInput>
+
+            <View style={styles.imageView}>
+                <Image  style={styles.image} source={{ uri: imagePath }}/>
+            </View>
+
         </View> );
 };
 
@@ -132,16 +146,42 @@ export default DetailView;
 
 
 const styles = StyleSheet.create({
+
     buttons:{
+        paddingTop: 15,
+        paddingHorizontal: 30,
+        justifyContent: "space-between",
         flexDirection: 'row',
-        alignItems:'stretch'
-    },
-    saveButton:{
-        //alignSelf:'flex-end'
     },
     image:{
-        width:200,
-        height:200,
-        backgroundColor:'#ddd'
-    }
+        width:"90%",
+        height:350,
+        backgroundColor:'#ddd',
+    },
+    imageView:{
+
+        display: "flex",
+        alignItems: "center",
+    },
+    header:{
+        alignSelf: "center",
+        fontWeight: "bold",
+        fontSize: 40
+    },
+    description:{
+        paddingTop: 20,
+        paddingHorizontal: 25,
+        fontSize: 20,
+        height: 170,
+        justifyContent: "flex-start",
+        textAlignVertical: "top",
+    },
+    price:{
+        alignSelf: "center",
+        paddingTop: 20,
+        paddingHorizontal: 25,
+        fontSize: 40,
+        height: 100,
+        textAlignVertical: "top",
+    },
 });

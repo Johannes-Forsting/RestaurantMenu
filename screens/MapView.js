@@ -1,6 +1,6 @@
-import React, { useState, Text } from 'react'
-import MapView, {Marker} from 'react-native-maps'
-import { StyleSheet, View } from 'react-native'
+import React, { useState } from 'react'
+import MapView, {Marker, Callout} from 'react-native-maps'
+import { StyleSheet, View, Text } from 'react-native'
 import {doc, setDoc} from "firebase/firestore";
 import {database} from "../config/config";
 
@@ -9,59 +9,43 @@ const MapView2 = ({navigation, route}) => {  // route.params.xxx
     const chatColl = 'notes';
 
     const [regionState, setRegionState] = useState({
-        latitude: 55.12,
-        longitude: 12.0,
-        latitudeDelta: 2,
-        longitudeDelta: 2,
+        latitude: 55.691,
+        longitude: 12.553,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
     })
-    const [markerState, setMarkerState] = useState([])
-    const onRegionChange = (region) => {
-        setRegionState({ region })
+
+    const markerCoordinate = {
+        latitude: 55.6915,
+        longitude: 12.555,
     }
 
-    const detailView = "DetailView"
-    const onSelectMarker = async (data) => {
-        console.log("Latitude: ",data.nativeEvent.coordinate.latitude)
-        console.log("Longitude: ",data.nativeEvent.coordinate.longitude)
-
-        navigation.navigate({
-            name: detailView,
-            params: data.nativeEvent.coordinate,
-            merge: true,
-        })
-    }
-
-    const onCreatePin = (data) => {
-        const {latitude, longitude} = data.nativeEvent.coordinate
-        markerState.push(
-            <Marker coordinate = {{latitude,longitude}}
-                    key={data.timeStamp}
-                    pinColor = {"blue"}
-                    title={"Title"}
-                    description={"description"}
-                    onPress={onSelectMarker}
-            >
-
-            </Marker>)
-        setMarkerState(markerState)
-        // hack, to force map to update
-        setRegionState({
-            ...regionState,
-            latitude: regionState.latitude
-        })
-    }
 
     return (
         <View style={styles.container}>
+            <Text style={styles.infoText}>
+                Telefon Nr: 12345678 {"\n"}
+                Adresse: Guldbergsbage 29N {"\n"}{"\n"}
+
+                ÅBNINGSTIDER{"\n"}
+                Mandag 15:00 - 21:00{"\n"}
+                Tirsdag 15:00 - 21:00{"\n"}
+                Onsdag 15:00 - 21:00{"\n"}
+                Torsdag 15:00 - 21:00{"\n"}
+                Fredag 15:00 - 21:00{"\n"}
+                Lørdag 15:00 - 21:00{"\n"}
+                Søndag 15:00 - 21:00{"\n"}
+            </Text>
             <MapView
                 style={styles.map}
-                //provider="google"
-
                 initialRegion={regionState}
-                onRegionChange ={onRegionChange}
-                onLongPress = {onCreatePin}
+                tracksViewChanges={true}
             >
-                {markerState}
+                <Marker
+                    coordinate={markerCoordinate}
+                    title={"KEA Pizzaria"}
+                >
+                </Marker>
             </MapView>
 
         </View>
@@ -72,9 +56,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    infoText:{
+        width: "100%",
+        height: "50%",
+        fontWeight: "bold",
+        fontSize: 24,
+        padding: 25,
+    },
     map: {
-        width: '100%',
-        height: '100%',
+        alignSelf: "center",
+        width: '90%',
+        height: '47%',
+        borderRadius: 100,
     },
 });
 
